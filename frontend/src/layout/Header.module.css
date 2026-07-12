@@ -1,0 +1,118 @@
+.header {
+  height: 78px;
+  border-bottom: 1px solid var(--border-color);
+  background: #f6f6f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.brandWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoGlyph {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.logoGlyph span {
+  position: absolute;
+  inset: 0;
+  border: 4px solid;
+  border-radius: 12px;
+  border-color: transparent var(--brand-primary) var(--brand-primary) transparent;
+}
+
+.logoGlyph span:nth-child(1) {
+  transform: rotate(10deg);
+}
+
+.logoGlyph span:nth-child(2) {
+  transform: rotate(45deg) scale(0.78);
+  border-color: transparent var(--brand-accent) var(--brand-accent) transparent;
+}
+
+.logoGlyph span:nth-child(3) {
+  transform: rotate(85deg) scale(0.58);
+}
+
+.brandText {
+  font-family: var(--font-brand);
+  font-size: 58px;
+  line-height: 0.8;
+  color: #3d2a8f;
+  letter-spacing: 0.5px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.userBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #3f3f44;
+}
+
+.logoutButton {
+  border: 0;
+  background: transparent;
+  color: #4f3ea5;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.langToggle {
+  border: 1px solid #b5b5b9;
+  border-radius: 8px;
+  overflow: hidden;
+  display: inline-flex;
+}
+
+.langButton,
+.langActive {
+  border: 0;
+  padding: 8px 18px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.langButton {
+  background: #e6e6e7;
+  color: #333;
+}
+
+.langActive {
+  background: #2e2e2e;
+  color: #fff;
+}
+
+@media (max-width: 800px) {
+  .header {
+    height: auto;
+    padding: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .brandText {
+    font-size: 44px;
+  }
+
+  .langButton,
+  .langActive {
+    padding: 7px 12px;
+    font-size: 14px;
+  }
+}

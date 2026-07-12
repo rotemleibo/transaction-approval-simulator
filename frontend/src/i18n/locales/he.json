@@ -1,0 +1,54 @@
+{
+  "header": {
+    "brand": "shva",
+    "langEng": "ENG",
+    "langHebrew": "עברית",
+    "logout": "התנתקות"
+  },
+  "hero": {
+    "badge": "סימולטור עסקאות",
+    "title": "האם העסקה תאושר?"
+  },
+  "auth": {
+    "title": "יש להתחבר כדי להמשיך",
+    "username": "שם משתמש",
+    "password": "סיסמה",
+    "login": "התחברות",
+    "signup": "הרשמה",
+    "error": "ההתחברות נכשלה. נא לבדוק את הפרטים."
+  },
+  "form": {
+    "regionLabel": "אזור",
+    "regionSearch": "חיפוש",
+    "dateLabel": "תאריך",
+    "timeLabel": "הזנת שעה",
+    "hour": "שעה",
+    "minute": "דקה",
+    "cancel": "ביטול",
+    "ok": "אישור",
+    "simulate": "ביצוע סימולציה",
+    "simulating": "מבצע סימולציה...",
+    "validationRegion": "נא לבחור אזור",
+    "validationDate": "נא לבחור תאריך"
+  },
+  "result": {
+    "title": "תוצאת סימולציה",
+    "approved": "אושר",
+    "rejected": "נדחה",
+    "region": "אזור",
+    "timezone": "אזור זמן",
+    "submittedUtc": "זמן שנשלח (UTC)",
+    "localTime": "זמן מקומי",
+    "placeholder": "יש להריץ סימולציה כדי לראות תוצאה."
+  },
+  "approvedList": {
+    "title": "עסקאות שאושרו",
+    "empty": "אין עדיין עסקאות מאושרות.",
+    "time": "שעה",
+    "timezone": "אזור זמן"
+  },
+  "errors": {
+    "generic": "אירעה שגיאה. נא לנסות שוב.",
+    "unauthorized": "יש להתחבר כדי לגשת לנקודות קצה מוגנות."
+  }
+}

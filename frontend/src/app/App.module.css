@@ -1,0 +1,128 @@
+.page {
+  min-height: 100vh;
+  background: radial-gradient(circle at 80% 20%, #f0edff 0%, #f6f6f8 42%, #f8f8fa 100%);
+  color: #29292f;
+}
+
+.main {
+  width: min(1800px, 96vw);
+  margin: 0 auto;
+  padding: 28px 0 40px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.badge {
+  margin: 0 auto 12px;
+  display: inline-block;
+  border: 1px solid #cbcbcf;
+  border-radius: 16px;
+  padding: 6px 20px;
+  font-size: 30px;
+  font-weight: 700;
+  color: #3a3a40;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(32px, 2.1vw, 44px);
+  font-weight: 600;
+}
+
+.authRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.simulatorArea {
+  display: grid;
+  grid-template-columns: 1fr 0.95fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.visualCard {
+  min-height: 390px;
+  border-radius: 20px;
+  border: 1px solid #dddde3;
+  background: #fff;
+  overflow: hidden;
+}
+
+.fakeSiteBar {
+  height: 42px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 12px;
+}
+
+.fakeSiteBar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #cdcadb;
+}
+
+.visualContent {
+  height: calc(100% - 42px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f7f5ff 50%, #f6fbff 100%);
+}
+
+.visualText {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-family: var(--font-brand);
+  color: #3d2a8f;
+  font-size: 60px;
+  opacity: 0.85;
+}
+
+.deviceMock {
+  width: 220px;
+  height: 320px;
+  border-radius: 26px;
+  border: 8px solid #27272f;
+  background: linear-gradient(180deg, #fbfbff 0%, #ece7ff 100%);
+  box-shadow: 18px 20px 30px rgba(52, 47, 92, 0.2);
+  transform: rotate(12deg);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 1200px) {
+  .simulatorArea {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .main {
+    width: min(680px, 95vw);
+    padding-top: 14px;
+  }
+
+  .badge {
+    font-size: 20px;
+    padding: 5px 14px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+}

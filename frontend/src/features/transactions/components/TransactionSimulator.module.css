@@ -1,0 +1,48 @@
+.wrap {
+  display: grid;
+  gap: 16px;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.dateLabel {
+  display: grid;
+  gap: 8px;
+  width: 340px;
+  max-width: 100%;
+  font-size: 14px;
+  color: #4e4e58;
+}
+
+.dateLabel input {
+  height: 44px;
+  border: 1px solid #c6c6cc;
+  border-radius: 8px;
+  padding-inline: 10px;
+  font-size: 16px;
+}
+
+.submit {
+  width: 220px;
+  height: 44px;
+  border-radius: 10px;
+  border: 0;
+  background: #3d2f8b;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 0;
+  color: #aa2b2b;
+  font-size: 14px;
+}

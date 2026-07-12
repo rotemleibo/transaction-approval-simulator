@@ -1,0 +1,19 @@
+# General
+.DS_Store
+Thumbs.db
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# .NET
+**/bin/
+**/obj/
+
+# User settings
+.vscode/
+.idea/
+
+# Secrets
+**/appsettings.Local.json
+.env

@@ -1,0 +1,87 @@
+.wrap {
+  position: relative;
+  width: 340px;
+  max-width: 100%;
+}
+
+.label {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  color: #7f72af;
+  font-size: 12px;
+  z-index: 2;
+  background: #f3f3f6;
+  padding-inline: 2px;
+}
+
+.inputWrap {
+  border: 2px solid #6b54b7;
+  border-radius: 2px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.inputWrap input {
+  flex: 1;
+  height: 54px;
+  padding: 18px 12px 6px;
+  border: 0;
+  outline: none;
+  font-size: 28px;
+}
+
+.inputWrap button {
+  border: 0;
+  width: 46px;
+  height: 54px;
+  background: transparent;
+  color: #5a5a5a;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #ddd7e6;
+  border: 1px solid #c7bfd4;
+  z-index: 4;
+}
+
+.menu button {
+  width: 100%;
+  border: 0;
+  text-align: left;
+  background: transparent;
+  font-size: 33px;
+  padding: 14px 14px;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background: #cdc3df;
+}
+
+:global([dir='rtl']) .label {
+  left: auto;
+  right: 12px;
+}
+
+:global([dir='rtl']) .menu button {
+  text-align: right;
+}
+
+@media (max-width: 800px) {
+  .inputWrap input {
+    font-size: 18px;
+  }
+
+  .menu button {
+    font-size: 20px;
+  }
+}

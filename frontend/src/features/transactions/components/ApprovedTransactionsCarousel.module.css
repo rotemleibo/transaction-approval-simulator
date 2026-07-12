@@ -1,0 +1,106 @@
+.section {
+  margin-top: 80px;
+  padding-inline: 24px;
+}
+
+.section h2 {
+  font-size: 48px;
+  margin: 0 0 20px;
+  color: #2e2e33;
+}
+
+.carouselWrap {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.track {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+}
+
+.card {
+  min-width: 350px;
+  border: 1px solid #d0d0d5;
+  border-radius: 10px;
+  background: #fff;
+  padding: 20px;
+  scroll-snap-align: start;
+}
+
+.time {
+  margin: 0 0 8px;
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.card p {
+  margin: 0;
+  color: #404046;
+  font-size: 32px;
+}
+
+.arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #d4d4d4;
+  background: #fff;
+  cursor: pointer;
+}
+
+.empty {
+  color: #626266;
+  font-size: 24px;
+}
+
+.loadingGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.skeleton {
+  height: 120px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #ececf0 25%, #f7f7fa 50%, #ececf0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .section {
+    margin-top: 36px;
+    padding-inline: 14px;
+  }
+
+  .section h2 {
+    font-size: 32px;
+  }
+
+  .time {
+    font-size: 28px;
+  }
+
+  .card p {
+    font-size: 18px;
+  }
+
+  .card {
+    min-width: 260px;
+  }
+}

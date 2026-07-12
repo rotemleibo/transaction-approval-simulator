@@ -1,0 +1,54 @@
+{
+  "header": {
+    "brand": "shva",
+    "langEng": "ENG",
+    "langHebrew": "Hebrew",
+    "logout": "Logout"
+  },
+  "hero": {
+    "badge": "TRANSACTION SIMULATOR",
+    "title": "Will this transaction be approved?"
+  },
+  "auth": {
+    "title": "Sign in to continue",
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "signup": "Sign up",
+    "error": "Authentication failed. Please verify your details."
+  },
+  "form": {
+    "regionLabel": "Region",
+    "regionSearch": "search",
+    "dateLabel": "Date",
+    "timeLabel": "Enter time",
+    "hour": "Hour",
+    "minute": "Minute",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "simulate": "Simulate",
+    "simulating": "Simulating...",
+    "validationRegion": "Please select a region",
+    "validationDate": "Please select a date"
+  },
+  "result": {
+    "title": "Simulation Result",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "region": "Region",
+    "timezone": "Time Zone",
+    "submittedUtc": "Submitted UTC",
+    "localTime": "Local Time",
+    "placeholder": "Submit a simulation to view the result."
+  },
+  "approvedList": {
+    "title": "Approved Transactions",
+    "empty": "No approved transactions yet.",
+    "time": "Time",
+    "timezone": "Time Zone"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "unauthorized": "Please login to access protected endpoints."
+  }
+}

@@ -1,0 +1,30 @@
+.placeholder,
+.approved,
+.rejected {
+  margin-top: 16px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 16px;
+  color: #36363e;
+}
+
+.approved {
+  border-color: #50a56f;
+  background: #f3fff7;
+}
+
+.rejected {
+  border-color: #ca7a7a;
+  background: #fff7f7;
+}
+
+.badge {
+  margin: 4px 0 10px;
+  font-weight: 700;
+}
+
+.reason {
+  margin-top: 8px;
+  color: #5a5865;
+}
