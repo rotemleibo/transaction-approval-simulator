@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ApprovedTransaction } from '../../../types/api';
 import styles from './ApprovedTransactionsCarousel.module.css';
@@ -6,14 +6,55 @@ import styles from './ApprovedTransactionsCarousel.module.css';
 type Props = {
   transactions: ApprovedTransaction[];
   loading: boolean;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  onFetchNextPage: () => void;
 };
 
-export function ApprovedTransactionsCarousel({ transactions, loading }: Props) {
+export function ApprovedTransactionsCarousel({
+  transactions,
+  loading,
+  hasNextPage,
+  isFetchingNextPage,
+  onFetchNextPage,
+}: Props) {
   const { t } = useTranslation();
-  const listRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+  const pendingAdvanceRef = useRef(false);
 
-  function scrollByAmount(offset: number) {
-    listRef.current?.scrollBy({ left: offset, behavior: 'smooth' });
+  const atStart = index <= 0;
+  const atEnd = index >= transactions.length - 1;
+
+  // After more items arrive following an end-of-list fetch, advance to the first new card.
+  useEffect(() => {
+    if (pendingAdvanceRef.current && index < transactions.length - 1) {
+      pendingAdvanceRef.current = false;
+      setIndex((i) => i + 1);
+    }
+  }, [transactions.length, index]);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    const card = track?.children[index] as HTMLElement | undefined;
+    if (track && card) {
+      // scrollBy with a rect delta works correctly in both LTR and RTL layouts.
+      const delta = card.getBoundingClientRect().left - track.getBoundingClientRect().left;
+      track.scrollBy({ left: delta, behavior: 'smooth' });
+    }
+  }, [index, transactions.length]);
+
+  function goPrev() {
+    setIndex((i) => Math.max(0, i - 1));
+  }
+
+  function goNext() {
+    if (!atEnd) {
+      setIndex((i) => i + 1);
+    } else if (hasNextPage && !isFetchingNextPage) {
+      pendingAdvanceRef.current = true;
+      onFetchNextPage();
+    }
   }
 
   return (
@@ -29,10 +70,16 @@ export function ApprovedTransactionsCarousel({ transactions, loading }: Props) {
         <p className={styles.empty}>{t('approvedList.empty')}</p>
       ) : (
         <div className={styles.carouselWrap}>
-          <button type="button" onClick={() => scrollByAmount(-340)} className={styles.arrow}>
+          <button
+            type="button"
+            onClick={goPrev}
+            className={styles.arrow}
+            disabled={atStart}
+            aria-label={t('approvedList.prevPage')}
+          >
             ←
           </button>
-          <div className={styles.track} ref={listRef}>
+          <div className={styles.track} ref={trackRef}>
             {transactions.map((tx) => {
               const localDate = new Date(tx.localTransactionTime);
               return (
@@ -47,7 +94,13 @@ export function ApprovedTransactionsCarousel({ transactions, loading }: Props) {
               );
             })}
           </div>
-          <button type="button" onClick={() => scrollByAmount(340)} className={styles.arrow}>
+          <button
+            type="button"
+            onClick={goNext}
+            className={styles.arrow}
+            disabled={(atEnd && !hasNextPage) || isFetchingNextPage}
+            aria-label={t('approvedList.nextPage')}
+          >
             →
           </button>
         </div>

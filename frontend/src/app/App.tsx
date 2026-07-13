@@ -16,7 +16,11 @@ export default function App() {
   const language = useMemo<'en' | 'he'>(() => (i18n.language === 'he' ? 'he' : 'en'), [i18n.language]);
   const [lastResult, setLastResult] = useState<SimulateTransactionResponse | null>(null);
 
-  const approvedQuery = useApprovedTransactions(1, 20, isAuthenticated);
+  const approvedQuery = useApprovedTransactions(20, isAuthenticated);
+  const approvedTransactions = useMemo(
+    () => approvedQuery.data?.pages.flatMap((p) => p.items) ?? [],
+    [approvedQuery.data],
+  );
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -66,8 +70,11 @@ export default function App() {
           </section>
 
           <ApprovedTransactionsCarousel
-            transactions={approvedQuery.data?.items ?? []}
+            transactions={approvedTransactions}
             loading={approvedQuery.isLoading}
+            hasNextPage={approvedQuery.hasNextPage}
+            isFetchingNextPage={approvedQuery.isFetchingNextPage}
+            onFetchNextPage={() => approvedQuery.fetchNextPage()}
           />
 
           {lastResult && <div className={styles.srOnly}>{lastResult.status}</div>}

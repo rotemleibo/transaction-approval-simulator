@@ -19,8 +19,7 @@
 .track {
   display: flex;
   gap: 18px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  overflow-x: hidden;
   padding-bottom: 8px;
 }
 
@@ -30,7 +29,6 @@
   border-radius: 10px;
   background: #fff;
   padding: 20px;
-  scroll-snap-align: start;
 }
 
 .time {
@@ -52,6 +50,11 @@
   border: 1px solid #d4d4d4;
   background: #fff;
   cursor: pointer;
+}
+
+.arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .empty {
