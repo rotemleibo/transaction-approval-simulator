@@ -1,3 +1,4 @@
+using EntityFramework.Exceptions.SqlServer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,9 +24,11 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("Default"),
-                sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+            options
+                .UseSqlServer(
+                    configuration.GetConnectionString("Default"),
+                    sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
+                .UseExceptionProcessor());
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<OutboxDispatcherOptions>(configuration.GetSection(OutboxDispatcherOptions.SectionName));

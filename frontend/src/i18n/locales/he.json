@@ -26,6 +26,7 @@
     "regionLabel": "אזור",
     "regionSearch": "חיפוש",
     "dateLabel": "תאריך",
+    "timeHint": "התאריך והשעה מפורשים לפי אזור הזמן הנוכחי בדפדפן ונשלחים כזמן UTC.",
     "timeLabel": "הזנת שעה",
     "hour": "שעה",
     "minute": "דקה",

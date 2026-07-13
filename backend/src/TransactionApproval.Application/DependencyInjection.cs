@@ -16,8 +16,12 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<BankingHoursOptions>(
-            configuration.GetSection(BankingHoursOptions.SectionName));
+        services.AddOptions<BankingHoursOptions>()
+            .Bind(configuration.GetSection(BankingHoursOptions.SectionName))
+            .Validate(
+                options => options.Open < options.Close,
+                "BankingHours configuration is invalid: Open must be earlier than Close.")
+            .ValidateOnStart();
 
         services.AddScoped<ITransactionApprovalEvaluator, TransactionApprovalEvaluator>();
         services.AddScoped<IRegionService, RegionService>();

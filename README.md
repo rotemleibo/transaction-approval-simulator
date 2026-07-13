@@ -71,6 +71,7 @@ transaction-approval-simulator/
 ## Timezone Strategy
 - Supported regions are fixed and seeded in DB (`RegionCatalog`)
 - Each region maps to a stable IANA timezone ID
+- `submittedAt` is treated as an absolute instant; in the UI it is produced from the browser-local date/time picker and then sent as UTC.
 - Submitted transaction instant is stored in UTC
 - Backend converts UTC to region local time with `TimeZoneInfo`
 - DST is handled automatically by timezone data (no hardcoded offsets)
@@ -162,6 +163,7 @@ Content-Type: application/json
   "submittedAt": "2026-07-12T09:15:00.000Z"
 }
 ```
+`submittedAt` must be a UTC instant (ISO-8601). The frontend date/time picker converts the user's local selected time into this UTC value.
 
 ### Approved (protected)
 ```http

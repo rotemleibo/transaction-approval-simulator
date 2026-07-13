@@ -1,5 +1,7 @@
+using EntityFramework.Exceptions.Common;
 using Microsoft.EntityFrameworkCore;
 using TransactionApproval.Application.Abstractions;
+using TransactionApproval.Application.Common.Exceptions;
 using TransactionApproval.Domain.Entities;
 
 namespace TransactionApproval.Infrastructure.Persistence.Repositories;
@@ -27,7 +29,14 @@ public class UserRepository : IUserRepository
 
     public async Task AddAsync(User user, CancellationToken cancellationToken)
     {
-        await _db.Users.AddAsync(user, cancellationToken);
-        await _db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _db.Users.AddAsync(user, cancellationToken);
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+        catch (UniqueConstraintException)
+        {
+            throw new ConflictException($"Username '{user.Username}' is already taken.");
+        }
     }
 }

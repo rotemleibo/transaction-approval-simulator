@@ -1,6 +1,7 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { login, signup } from '../../services/api/authApi';
+import { unauthorizedEventName } from '../../services/api/http';
 import { tokenStorage } from './tokenStorage';
 
 type AuthContextValue = {
@@ -17,6 +18,19 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: PropsWithChildren) {
   const [token, setToken] = useState<string | null>(() => tokenStorage.getToken());
   const [username, setUsername] = useState<string | null>(() => tokenStorage.getUsername());
+
+  useEffect(() => {
+    function handleUnauthorized() {
+      tokenStorage.clear();
+      setToken(null);
+      setUsername(null);
+    }
+
+    window.addEventListener(unauthorizedEventName, handleUnauthorized);
+    return () => {
+      window.removeEventListener(unauthorizedEventName, handleUnauthorized);
+    };
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({

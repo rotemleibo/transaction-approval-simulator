@@ -26,6 +26,7 @@
     "regionLabel": "Region",
     "regionSearch": "search",
     "dateLabel": "Date",
+    "timeHint": "Date and time are interpreted in your current browser timezone and sent as a UTC instant.",
     "timeLabel": "Enter time",
     "hour": "Hour",
     "minute": "Minute",

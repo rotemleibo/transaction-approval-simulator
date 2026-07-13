@@ -68,6 +68,8 @@ export function TransactionSimulator({ onResult }: Props) {
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         </label>
 
+        <p className={styles.timeHint}>{t('form.timeHint')}</p>
+
         <TimePickerCard
           hour={draftHour}
           minute={draftMinute}
