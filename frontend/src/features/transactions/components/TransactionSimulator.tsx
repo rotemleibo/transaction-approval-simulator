@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../auth/AuthContext';
 import { useRegions } from '../hooks/useRegions';
 import { useSimulateTransaction } from '../hooks/useSimulateTransaction';
 import type { SimulateTransactionResponse } from '../../../types/api';
@@ -15,30 +14,19 @@ type Props = {
 
 export function TransactionSimulator({ onResult }: Props) {
   const { t } = useTranslation();
-  const { isAuthenticated } = useAuth();
   const { data: regions = [] } = useRegions();
   const simulateMutation = useSimulateTransaction();
 
   const now = useMemo(() => new Date(), []);
   const [selectedRegionCode, setSelectedRegionCode] = useState('');
   const [date, setDate] = useState(now.toISOString().slice(0, 10));
-  const [hour, setHour] = useState(now.getHours());
-  const [minute, setMinute] = useState(now.getMinutes());
+  const [committedHour, setCommittedHour] = useState(now.getHours());
+  const [committedMinute, setCommittedMinute] = useState(now.getMinutes());
+  const [draftHour, setDraftHour] = useState(now.getHours());
+  const [draftMinute, setDraftMinute] = useState(now.getMinutes());
   const [formError, setFormError] = useState<string | null>(null);
 
-  const canSubmit =
-    isAuthenticated &&
-    selectedRegionCode.length > 0 &&
-    date.length > 0 &&
-    hour >= 0 &&
-    hour <= 23 &&
-    minute >= 0 &&
-    minute <= 59 &&
-    !simulateMutation.isPending;
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
+  async function runSimulation(hour: number, minute: number) {
     if (!selectedRegionCode) {
       setFormError(t('form.validationRegion'));
       return;
@@ -68,7 +56,7 @@ export function TransactionSimulator({ onResult }: Props) {
 
   return (
     <section className={styles.wrap}>
-      <form className={styles.form} onSubmit={onSubmit}>
+      <div className={styles.form}>
         <RegionCombobox
           regions={regions}
           selectedRegionCode={selectedRegionCode}
@@ -81,18 +69,24 @@ export function TransactionSimulator({ onResult }: Props) {
         </label>
 
         <TimePickerCard
-          hour={hour}
-          minute={minute}
-          onHourChange={(value) => setHour(Math.min(23, Math.max(0, Number.isNaN(value) ? 0 : value)))}
-          onMinuteChange={(value) => setMinute(Math.min(59, Math.max(0, Number.isNaN(value) ? 0 : value)))}
+          hour={draftHour}
+          minute={draftMinute}
+          onHourChange={(value) => setDraftHour(Math.min(23, Math.max(0, Number.isNaN(value) ? 0 : value)))}
+          onMinuteChange={(value) => setDraftMinute(Math.min(59, Math.max(0, Number.isNaN(value) ? 0 : value)))}
+          onCancel={() => {
+            setDraftHour(committedHour);
+            setDraftMinute(committedMinute);
+          }}
+          onOk={() => {
+            setCommittedHour(draftHour);
+            setCommittedMinute(draftMinute);
+            void runSimulation(draftHour, draftMinute);
+          }}
         />
 
         {formError && <p className={styles.error}>{formError}</p>}
 
-        <button className={styles.submit} disabled={!canSubmit} type="submit">
-          {simulateMutation.isPending ? t('form.simulating') : t('form.simulate')}
-        </button>
-      </form>
+      </div>
 
       <SimulationResult result={simulateMutation.data ?? null} />
     </section>

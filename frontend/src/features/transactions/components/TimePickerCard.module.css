@@ -6,6 +6,10 @@
   padding: 20px;
 }
 
+.rtl {
+  direction: rtl;
+}
+
 .title {
   color: #5f547d;
   margin-bottom: 10px;
@@ -17,6 +21,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.rtl .row {
+  flex-direction: row-reverse;
 }
 
 .timeBox {

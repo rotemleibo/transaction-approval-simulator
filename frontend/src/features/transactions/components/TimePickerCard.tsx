@@ -6,13 +6,16 @@ type Props = {
   minute: number;
   onHourChange: (value: number) => void;
   onMinuteChange: (value: number) => void;
+  onCancel: () => void;
+  onOk: () => void;
 };
 
-export function TimePickerCard({ hour, minute, onHourChange, onMinuteChange }: Props) {
-  const { t } = useTranslation();
+export function TimePickerCard({ hour, minute, onHourChange, onMinuteChange, onCancel, onOk }: Props) {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'he';
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${isRtl ? styles.rtl : ''}`}>
       <div className={styles.title}>{t('form.timeLabel')}</div>
 
       <div className={styles.row}>
@@ -44,8 +47,12 @@ export function TimePickerCard({ hour, minute, onHourChange, onMinuteChange }: P
       <div className={styles.footer}>
         <span className={styles.clock}>◷</span>
         <div className={styles.actions}>
-          <button type="button">{t('form.cancel')}</button>
-          <button type="button">{t('form.ok')}</button>
+          <button type="button" onClick={onCancel}>
+            {t('form.cancel')}
+          </button>
+          <button type="button" onClick={onOk}>
+            {t('form.ok')}
+          </button>
         </div>
       </div>
     </div>

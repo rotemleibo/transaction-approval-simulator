@@ -32,40 +32,47 @@ export default function App() {
     <div className={styles.page}>
       <Header language={language} onChangeLanguage={changeLanguage} />
 
-      <main className={styles.main}>
-        <section className={styles.hero}>
-          <p className={styles.badge}>{t('hero.badge')}</p>
-          <h1>{t('hero.title')}</h1>
-        </section>
+      {!isAuthenticated ? (
+        <main className={styles.signPage}>
+          <section className={styles.hero}>
+            <p className={styles.badge}>{t('hero.badge')}</p>
+            <h1>{t('hero.title')}</h1>
+          </section>
 
-        {!isAuthenticated && (
-          <section className={styles.authRow}>
+          <section className={styles.signCard} aria-label={t('auth.signPageTitle')}>
             <AuthPanel />
           </section>
-        )}
+        </main>
+      ) : (
+        <main className={styles.main}>
+          <section className={styles.hero}>
+            <p className={styles.badge}>{t('hero.badge')}</p>
+            <h1>{t('hero.title')}</h1>
+          </section>
 
-        <section className={styles.simulatorArea}>
-          <TransactionSimulator onResult={setLastResult} />
-          <aside className={styles.visualCard}>
-            <div className={styles.fakeSiteBar}>
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className={styles.visualContent}>
-              <div className={styles.visualText}>shva</div>
-              <div className={styles.deviceMock} />
-            </div>
-          </aside>
-        </section>
+          <section className={styles.simulatorArea}>
+            <TransactionSimulator onResult={setLastResult} />
+            <aside className={styles.visualCard}>
+              <div className={styles.fakeSiteBar}>
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className={styles.visualContent}>
+                <div className={styles.visualText}>shva</div>
+                <div className={styles.deviceMock} />
+              </div>
+            </aside>
+          </section>
 
-        <ApprovedTransactionsCarousel
-          transactions={approvedQuery.data?.items ?? []}
-          loading={approvedQuery.isLoading}
-        />
+          <ApprovedTransactionsCarousel
+            transactions={approvedQuery.data?.items ?? []}
+            loading={approvedQuery.isLoading}
+          />
 
-        {lastResult && <div className={styles.srOnly}>{lastResult.status}</div>}
-      </main>
+          {lastResult && <div className={styles.srOnly}>{lastResult.status}</div>}
+        </main>
+      )}
     </div>
   );
 }

@@ -25,22 +25,6 @@
   font-size: 16px;
 }
 
-.submit {
-  width: 220px;
-  height: 44px;
-  border-radius: 10px;
-  border: 0;
-  background: #3d2f8b;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.submit:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .error {
   margin: 0;
   color: #aa2b2b;

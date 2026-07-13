@@ -10,6 +10,7 @@
     "title": "Will this transaction be approved?"
   },
   "auth": {
+    "signPageTitle": "Sign page",
     "title": "Sign in to continue",
     "username": "Username",
     "password": "Password",
