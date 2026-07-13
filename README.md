@@ -8,6 +8,7 @@ Production-quality take-home assignment implementation with:
 - Validation: FluentValidation
 - API docs: Swagger
 - Bonus features included: Docker Compose, English/Hebrew i18n with RTL/LTR, JWT auth (signup/login)
+- Event Publishing and Outbox.
 
 ## Project Overview
 The app simulates whether a transaction is approved based on banking hours in the selected region.
@@ -225,7 +226,7 @@ Default retry controls (`appsettings.json` -> `Outbox`):
 - Region catalog is static (best for deterministic business rules) rather than dynamic geopolitical coverage
 
 ## What I Would Improve With More Time
-- Add integration tests for API + database (Testcontainers), including outbox retry/dead-letter scenarios
+- Add integration tests for API + database (Testcontainers)
 - Add refresh token flow and role-based claims
 - Add broker-backed publisher implementation (Kafka/Service Bus) behind `IEventPublisher`
 - Add audit trail metadata (request id, actor id)
@@ -233,26 +234,4 @@ Default retry controls (`appsettings.json` -> `Outbox`):
 - Add virtualization and infinite loading for large approved lists
 - Add CI pipeline (build, test, lint, Docker build)
 
-## Demo Script (Loom, 3-5 minutes)
-1. Open app and briefly explain stack and architecture.
-2. Signup and login.
-3. Show region search and language toggle (ENG/HE), including RTL behavior in Hebrew.
-4. Run a simulation for a time inside banking hours and show Approved result.
-5. Run another simulation outside banking hours and show Rejected result.
-6. Scroll the Approved Transactions list and show newest approved entries.
-7. Open Swagger and show endpoints + JWT-protected routes.
-8. Show one backend code snippet: `TransactionApprovalEvaluator` and explain timezone/DST handling.
-9. Show Docker Compose up command and running services.
 
-## Submission Checklist
-- [ ] Backend builds successfully
-- [ ] Unit tests pass
-- [ ] Frontend builds successfully
-- [ ] Database migrations apply on startup
-- [ ] Regions endpoint returns supported regions
-- [ ] Simulate endpoint enforces approval window correctly
-- [ ] Approved endpoint returns approved only, newest-first
-- [ ] ENG/HE toggle works and switches RTL/LTR
-- [ ] Login/signup + JWT protection works
-- [ ] Docker Compose runs all services
-- [ ] README instructions validated on a clean machine
