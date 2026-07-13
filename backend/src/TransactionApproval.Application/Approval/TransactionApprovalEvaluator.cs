@@ -21,15 +21,25 @@ public class TransactionApprovalEvaluator : ITransactionApprovalEvaluator
     {
         // .NET 6+ resolves both IANA (e.g. "Asia/Jerusalem") and Windows ids on
         // every platform, so a seeded IANA id works on Linux and Windows alike.
-        TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        TimeZoneInfo timeZone;
+        try
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        }
+        catch (TimeZoneNotFoundException ex)
+        {
+            throw new InvalidOperationException(
+                $"Time zone '{timeZoneId}' is not available on this system.", ex);
+        }
 
         // Convert the absolute instant to the region's wall-clock time.
         DateTimeOffset localOffset = TimeZoneInfo.ConvertTime(submittedAt, timeZone);
         DateTime localTime = localOffset.DateTime;
+        TimeOnly localTimeOfDay = TimeOnly.FromDateTime(localTime);
 
         bool withinBankingHours =
-            localTime.Hour >= _bankingHours.OpenHour &&
-            localTime.Hour < _bankingHours.CloseHour;
+            localTimeOfDay >= _bankingHours.Open &&
+            localTimeOfDay < _bankingHours.Close;
 
         TransactionStatus status = withinBankingHours
             ? TransactionStatus.Approved
@@ -37,9 +47,9 @@ public class TransactionApprovalEvaluator : ITransactionApprovalEvaluator
 
         string reason = withinBankingHours
             ? $"Local time {localTime:HH:mm} is within banking hours " +
-              $"({_bankingHours.OpenHour:00}:00\u2013{_bankingHours.CloseHour:00}:00)."
+              $"({_bankingHours.Open:HH\\:mm}\u2013{_bankingHours.Close:HH\\:mm})."
             : $"Local time {localTime:HH:mm} is outside banking hours " +
-              $"({_bankingHours.OpenHour:00}:00\u2013{_bankingHours.CloseHour:00}:00).";
+              $"({_bankingHours.Open:HH\\:mm}\u2013{_bankingHours.Close:HH\\:mm}).";
 
         return new ApprovalDecision(localTime, status, reason);
     }

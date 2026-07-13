@@ -10,8 +10,8 @@ public class TransactionApprovalEvaluatorTests
     {
         var options = Options.Create(new BankingHoursOptions
         {
-            OpenHour = openHour,
-            CloseHour = closeHour
+            Open = new TimeOnly(openHour, 0),
+            Close = new TimeOnly(closeHour, 0)
         });
 
         return new TransactionApprovalEvaluator(options);
@@ -60,5 +60,16 @@ public class TransactionApprovalEvaluatorTests
 
         Assert.Equal(8, result.LocalTransactionTime.Hour);
         Assert.Equal(TransactionStatus.Approved, result.Status);
+    }
+
+    [Fact]
+    public void Evaluate_ThrowsInvalidOperation_ForUnknownTimeZone()
+    {
+        var subject = CreateSubject();
+
+        var ex = Assert.Throws<InvalidOperationException>(
+            () => subject.Evaluate("Not/A_Zone", DateTimeOffset.UtcNow));
+
+        Assert.Contains("Not/A_Zone", ex.Message);
     }
 }
