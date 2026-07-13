@@ -12,6 +12,10 @@
   "auth": {
     "signPageTitle": "Sign page",
     "title": "Sign in to continue",
+    "loginTitle": "Login Screen",
+    "signupTitle": "Sign-up Screen",
+    "loginSubtitle": "You are in login mode. Enter your existing account details.",
+    "signupSubtitle": "You are in sign-up mode. Create a new account to continue.",
     "username": "Username",
     "password": "Password",
     "login": "Login",

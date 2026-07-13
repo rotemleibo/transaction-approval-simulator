@@ -37,17 +37,48 @@ export function AuthPanel() {
 
   return (
     <form className={styles.panel} onSubmit={submit}>
-      <h3>{t('auth.title')}</h3>
-      <label>
-        {t('auth.username')}
-        <input value={username} onChange={(e) => setUsername(e.target.value)} required minLength={3} />
+      <div className={styles.modeToggle} role="group" aria-label="Authentication mode">
+        <button
+          type="button"
+          className={mode === 'login' ? styles.modeActive : styles.modeButton}
+          disabled={loading}
+          onClick={() => setMode('login')}
+        >
+          {t('auth.login')}
+        </button>
+        <button
+          type="button"
+          className={mode === 'signup' ? styles.modeActive : styles.modeButton}
+          disabled={loading}
+          onClick={() => setMode('signup')}
+        >
+          {t('auth.signup')}
+        </button>
+      </div>
+
+      <h2 className={styles.title}>{mode === 'login' ? t('auth.loginTitle') : t('auth.signupTitle')}</h2>
+      <p className={styles.subtitle}>{mode === 'login' ? t('auth.loginSubtitle') : t('auth.signupSubtitle')}</p>
+
+      <label className={styles.field}>
+        <span>{t('auth.username')}</span>
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder={t('auth.username')}
+          autoComplete="username"
+          required
+          minLength={3}
+        />
       </label>
-      <label>
-        {t('auth.password')}
+
+      <label className={styles.field}>
+        <span>{t('auth.password')}</span>
         <input
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder={t('auth.password')}
           type="password"
+          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           required
           minLength={6}
         />
@@ -56,16 +87,8 @@ export function AuthPanel() {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.actions}>
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className={styles.primaryAction}>
           {mode === 'login' ? t('auth.login') : t('auth.signup')}
-        </button>
-        <button
-          type="button"
-          className={styles.secondary}
-          disabled={loading}
-          onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-        >
-          {mode === 'login' ? t('auth.signup') : t('auth.login')}
         </button>
       </div>
     </form>

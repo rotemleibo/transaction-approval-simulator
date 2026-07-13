@@ -1,55 +1,119 @@
 .panel {
-  width: min(340px, 100%);
-  border: 1px solid #d4d4d8;
-  border-radius: 14px;
-  padding: 14px;
+  width: min(420px, 100%);
+  border: 1px solid #d8d8df;
+  border-radius: 16px;
+  padding: 20px;
   background: #fff;
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  box-shadow: 0 10px 26px rgba(43, 40, 74, 0.08);
 }
 
-.panel h3 {
+.modeToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid #cfcfd8;
+  border-radius: 10px;
+  padding: 3px;
+  background: #f2f2f8;
+  gap: 4px;
+}
+
+.modeButton,
+.modeActive {
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.modeButton {
+  background: transparent;
+  color: #4f4f5c;
+}
+
+.modeActive {
+  background: #2f2f35;
+  color: #fff;
+}
+
+.title {
   margin: 0;
-  font-size: 16px;
+  font-size: 22px;
+  line-height: 1.2;
+  color: #252531;
 }
 
-.panel label {
+.subtitle {
+  margin: -6px 0 0;
+  font-size: 13px;
+  color: #6a6978;
+}
+
+.field {
   display: grid;
   gap: 6px;
-  font-size: 13px;
-  color: #474747;
 }
 
-.panel input {
-  height: 38px;
-  border: 1px solid #bcbcc2;
-  border-radius: 8px;
-  padding: 0 10px;
+.field span {
   font-size: 14px;
+  font-weight: 600;
+  color: #42424d;
+}
+
+.field input {
+  height: 44px;
+  border: 1px solid #bfc1cd;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 15px;
+  color: #2d2d37;
+  background: #fff;
+}
+
+.field input::placeholder {
+  color: #8a8a97;
+}
+
+.field input:focus {
+  outline: 2px solid rgba(79, 62, 165, 0.24);
+  border-color: #8c7bc8;
 }
 
 .actions {
-  display: flex;
-  gap: 8px;
+  display: grid;
 }
 
 .actions button {
-  flex: 1;
-  height: 38px;
+  height: 42px;
   border-radius: 8px;
   border: 0;
-  background: #2f2f35;
-  color: #fff;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.secondary {
-  background: #e7e7ee !important;
-  color: #222 !important;
+.primaryAction {
+  background: #2f2f35;
+  color: #fff;
 }
 
 .error {
   margin: 0;
-  color: #b42a2a;
+  color: #b12626;
   font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  .panel {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
 }
