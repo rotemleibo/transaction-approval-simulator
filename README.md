@@ -41,7 +41,7 @@ transaction-approval-simulator/
 - Api: controllers, middleware, DI composition, auth, Swagger, CORS
 - Application: use-case services, DTOs, validators, approval evaluator
 - Domain: entities and enums
-- Infrastructure: EF Core DbContext/configurations/repositories, JWT/password hashing, clock, migrations
+- Infrastructure: EF Core DbContext/configurations/repositories, JWT/password hashing, clock, migrations, transactional outbox processor (lease + retry + dead-letter), event serializer, log publisher
 
 ### Frontend Structure
 - app: root composition and page orchestration
@@ -66,6 +66,7 @@ transaction-approval-simulator/
 - Region: `Code`, `Name`, `TimeZoneId`
 - Transaction: `Id`, `RegionCode`, `RegionName`, `TimeZoneId`, `SubmittedUtc`, `LocalTransactionTime`, `Status`, `CreatedAtUtc`
 - User: `Id`, `Username`, `PasswordHash`, `CreatedAtUtc`
+- OutboxMessage: `Id`, `Type`, `Payload`, `OccurredOnUtc`, `ProcessedOnUtc`, `DeadLetteredAtUtc`, `Attempts`, `AvailableAtUtc`, `LeasedUntilUtc`, `LastError`
 
 ## Timezone Strategy
 - Supported regions are fixed and seeded in DB (`RegionCatalog`)
@@ -178,10 +179,40 @@ The UI is implemented to mirror the provided interview design direction:
 - result panel and visual card
 - bottom horizontal approved-transactions card list with arrows
 
+## Event Publishing and Outbox
+The backend uses a transactional outbox to guarantee durable event publication for transaction decisions.
+
+Decision events:
+- `TransactionApproved`
+- `TransactionRejected`
+
+Each outbox payload carries at minimum:
+- event type
+- alert id (mapped to `Transaction.Id`)
+- transaction outcome (encoded by event type)
+- timestamp
+
+Processing flow:
+1. `TransactionService` saves the transaction and outbox row in one DB transaction.
+2. `OutboxDispatcherService` claims pending rows using a lease window.
+3. `OutboxEventSerializer` deserializes payload by event type.
+4. `LogEventPublisher` publishes (structured logs by default publisher).
+5. On failure, retry is scheduled with exponential backoff.
+6. After max attempts, message is marked dead-letter.
+
+Default retry controls (`appsettings.json` -> `Outbox`):
+- `PollingIntervalSeconds`
+- `BatchSize`
+- `MaxRetryCount`
+- `LeaseDuration`
+- `BaseBackoff`
+- `MaxBackoff`
+
 ## Architecture Decisions
 - Thin controllers, business logic in application services
 - UTC persistence for auditability and consistency
 - Explicit region catalog instead of free-text countries
+- Transactional outbox for reliable asynchronous event publication
 - Separate approved-transactions query endpoint for read clarity and easy paging
 - JWT auth kept minimal and pragmatic for interview scope
 
@@ -192,8 +223,9 @@ The UI is implemented to mirror the provided interview design direction:
 - Region catalog is static (best for deterministic business rules) rather than dynamic geopolitical coverage
 
 ## What I Would Improve With More Time
-- Add integration tests for API + database (Testcontainers)
+- Add integration tests for API + database (Testcontainers), including outbox retry/dead-letter scenarios
 - Add refresh token flow and role-based claims
+- Add broker-backed publisher implementation (Kafka/Service Bus) behind `IEventPublisher`
 - Add audit trail metadata (request id, actor id)
 - Add accessibility pass (keyboard flow, ARIA audit, contrast review)
 - Add virtualization and infinite loading for large approved lists

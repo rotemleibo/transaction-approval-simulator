@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TransactionApproval.Application.Abstractions;
 using TransactionApproval.Domain.Entities;
+using TransactionApproval.Infrastructure.Messaging;
 using TransactionApproval.Infrastructure.Persistence;
 using TransactionApproval.Infrastructure.Persistence.Repositories;
 using TransactionApproval.Infrastructure.Security;
@@ -27,14 +28,20 @@ public static class DependencyInjection
                 sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<OutboxDispatcherOptions>(configuration.GetSection(OutboxDispatcherOptions.SectionName));
 
         services.AddSingleton<IClock, SystemClock>();
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<ITokenService, JwtTokenService>();
 
         services.AddScoped<IRegionRepository, RegionRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IOutboxEventSerializer, OutboxEventSerializer>();
+        services.AddScoped<IEventPublisher, LogEventPublisher>();
+        services.AddHostedService<OutboxDispatcherService>();
 
         return services;
     }

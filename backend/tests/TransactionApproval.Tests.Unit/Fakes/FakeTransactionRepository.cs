@@ -6,6 +6,7 @@ namespace TransactionApproval.Tests.Unit.Fakes;
 public sealed class FakeTransactionRepository : ITransactionRepository
 {
     public List<Transaction> Transactions { get; } = [];
+    public List<OutboxMessage> OutboxMessages { get; } = [];
     private readonly IReadOnlyList<Transaction> _approvedItems;
     private readonly int _totalCount;
 
@@ -15,9 +16,13 @@ public sealed class FakeTransactionRepository : ITransactionRepository
         _totalCount = totalCount ?? _approvedItems.Count;
     }
 
-    public Task AddAsync(Transaction transaction, CancellationToken cancellationToken)
+    public Task AddAsync(
+        Transaction transaction,
+        IReadOnlyList<OutboxMessage> outboxMessages,
+        CancellationToken cancellationToken)
     {
         Transactions.Add(transaction);
+        OutboxMessages.AddRange(outboxMessages);
         return Task.CompletedTask;
     }
 

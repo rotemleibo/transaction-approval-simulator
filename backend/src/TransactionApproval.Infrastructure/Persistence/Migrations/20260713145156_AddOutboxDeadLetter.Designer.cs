@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TransactionApproval.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using TransactionApproval.Infrastructure.Persistence;
 namespace TransactionApproval.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260713145156_AddOutboxDeadLetter")]
+    partial class AddOutboxDeadLetter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,21 +31,12 @@ namespace TransactionApproval.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Attempts")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("AvailableAtUtc")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("DeadLetteredAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastError")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTime?>("LeasedUntilUtc")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("OccurredOnUtc")
                         .HasColumnType("datetime2");
@@ -54,6 +48,9 @@ namespace TransactionApproval.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("ProcessedOnUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -61,7 +58,7 @@ namespace TransactionApproval.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProcessedOnUtc", "DeadLetteredAtUtc", "AvailableAtUtc", "LeasedUntilUtc");
+                    b.HasIndex("ProcessedOnUtc", "DeadLetteredAtUtc");
 
                     b.ToTable("OutboxMessages", (string)null);
                 });

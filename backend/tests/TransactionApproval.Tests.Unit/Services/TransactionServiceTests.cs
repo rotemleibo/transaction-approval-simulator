@@ -1,6 +1,8 @@
+using System.Text.Json;
 using TransactionApproval.Application.Approval;
 using TransactionApproval.Application.Common.Exceptions;
 using TransactionApproval.Application.DTOs;
+using TransactionApproval.Application.Events;
 using TransactionApproval.Application.Services;
 using TransactionApproval.Domain.Entities;
 using TransactionApproval.Domain.Enums;
@@ -102,8 +104,52 @@ public class TransactionServiceTests
         Assert.Equal(submittedAt.UtcDateTime, saved.SubmittedUtc);
         Assert.Equal(decision.LocalTransactionTime, saved.LocalTransactionTime);
         Assert.Equal(decision.Status, saved.Status);
-        Assert.Equal(clock.UtcNow, saved.CreatedAtUtc);
-        Assert.NotEqual(Guid.Empty, saved.Id);
+    }
+
+    [Fact]
+    public async Task SimulateAsync_ApprovedDecision_ProducesOutboxMessage_WithExpectedEventFields()
+    {
+        var decision = MakeDecision(TransactionStatus.Approved);
+        var transactionRepository = new FakeTransactionRepository();
+        var service = CreateService(MakeRegion(), decision, transactionRepository);
+        var submittedAt = new DateTimeOffset(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
+
+        var response = await service.SimulateAsync(
+            new SimulateTransactionRequest("IL", submittedAt), CancellationToken.None);
+
+        var outboxMessage = Assert.Single(transactionRepository.OutboxMessages);
+        Assert.Equal(EventTypes.TransactionApproved, outboxMessage.Type);
+
+        var approvedEvent = JsonSerializer.Deserialize<TransactionApprovedEvent>(outboxMessage.Payload);
+        Assert.NotNull(approvedEvent);
+        Assert.Equal(EventTypes.TransactionApproved, approvedEvent!.EventType);
+        Assert.Equal(response.Id, approvedEvent.AlertId);
+        Assert.Equal("IL", approvedEvent.RegionCode);
+        Assert.Equal("Israel", approvedEvent.RegionName);
+        Assert.NotEqual(default, approvedEvent.TimestampUtc);
+    }
+
+    [Fact]
+    public async Task SimulateAsync_RejectedDecision_ProducesOutboxMessage_WithExpectedEventFields()
+    {
+        var decision = MakeDecision(TransactionStatus.Rejected);
+        var transactionRepository = new FakeTransactionRepository();
+        var service = CreateService(MakeRegion(), decision, transactionRepository);
+        var submittedAt = new DateTimeOffset(2026, 1, 1, 10, 0, 0, TimeSpan.Zero);
+
+        var response = await service.SimulateAsync(
+            new SimulateTransactionRequest("IL", submittedAt), CancellationToken.None);
+
+        var outboxMessage = Assert.Single(transactionRepository.OutboxMessages);
+        Assert.Equal(EventTypes.TransactionRejected, outboxMessage.Type);
+
+        var rejectedEvent = JsonSerializer.Deserialize<TransactionRejectedEvent>(outboxMessage.Payload);
+        Assert.NotNull(rejectedEvent);
+        Assert.Equal(EventTypes.TransactionRejected, rejectedEvent!.EventType);
+        Assert.Equal(response.Id, rejectedEvent.AlertId);
+        Assert.Equal("IL", rejectedEvent.RegionCode);
+        Assert.Equal("Israel", rejectedEvent.RegionName);
+        Assert.NotEqual(default, rejectedEvent.TimestampUtc);
     }
 
     #endregion

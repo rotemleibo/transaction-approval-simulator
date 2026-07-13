@@ -7,7 +7,14 @@ namespace TransactionApproval.Application.Abstractions;
 /// </summary>
 public interface ITransactionRepository
 {
-    Task AddAsync(Transaction transaction, CancellationToken cancellationToken);
+    /// <summary>
+    /// Persists the transaction along with any outbox messages produced by
+    /// the decision, in a single atomic write.
+    /// </summary>
+    Task AddAsync(
+        Transaction transaction,
+        IReadOnlyList<OutboxMessage> outboxMessages,
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Returns approved transactions, newest first, with total count for paging.

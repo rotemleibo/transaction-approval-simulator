@@ -1,8 +1,11 @@
+using System.Text.Json;
 using TransactionApproval.Application.Abstractions;
 using TransactionApproval.Application.Approval;
 using TransactionApproval.Application.Common.Exceptions;
 using TransactionApproval.Application.DTOs;
+using TransactionApproval.Application.Events;
 using TransactionApproval.Domain.Entities;
+using TransactionApproval.Domain.Enums;
 
 namespace TransactionApproval.Application.Services;
 
@@ -48,7 +51,7 @@ public class TransactionService : ITransactionService
             CreatedAtUtc = _clock.UtcNow
         };
 
-        await _transactions.AddAsync(transaction, cancellationToken);
+        await _transactions.AddAsync(transaction, new[] { BuildOutboxMessage(transaction) }, cancellationToken);
 
         return new SimulateTransactionResponse(
             transaction.Id,
@@ -59,6 +62,33 @@ public class TransactionService : ITransactionService
             transaction.LocalTransactionTime,
             transaction.Status,
             decision.Reason);
+    }
+
+    private static OutboxMessage BuildOutboxMessage(Transaction transaction)
+    {
+        TransactionEvent @event = transaction.Status switch
+        {
+            TransactionStatus.Approved => new TransactionApprovedEvent(
+                transaction.Id,
+                transaction.CreatedAtUtc,
+                transaction.RegionCode,
+                transaction.RegionName),
+            TransactionStatus.Rejected => new TransactionRejectedEvent(
+                transaction.Id,
+                transaction.CreatedAtUtc,
+                transaction.RegionCode,
+                transaction.RegionName),
+            _ => throw new InvalidOperationException($"Unsupported transaction status '{transaction.Status}'.")
+        };
+
+        return new OutboxMessage
+        {
+            Id = Guid.NewGuid(),
+            Type = @event.EventType,
+            Payload = JsonSerializer.Serialize(@event),
+            OccurredOnUtc = transaction.CreatedAtUtc,
+            AvailableAtUtc = transaction.CreatedAtUtc
+        };
     }
 
     public async Task<PagedResult<ApprovedTransactionDto>> GetApprovedAsync(

@@ -14,9 +14,18 @@ public class TransactionRepository : ITransactionRepository
         _db = db;
     }
 
-    public async Task AddAsync(Transaction transaction, CancellationToken cancellationToken)
+    public async Task AddAsync(
+        Transaction transaction,
+        IReadOnlyList<OutboxMessage> outboxMessages,
+        CancellationToken cancellationToken)
     {
         await _db.Transactions.AddAsync(transaction, cancellationToken);
+
+        if (outboxMessages.Count > 0)
+        {
+            await _db.OutboxMessages.AddRangeAsync(outboxMessages, cancellationToken);
+        }
+
         await _db.SaveChangesAsync(cancellationToken);
     }
 
