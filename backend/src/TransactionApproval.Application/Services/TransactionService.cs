@@ -8,7 +8,7 @@ namespace TransactionApproval.Application.Services;
 
 public class TransactionService : ITransactionService
 {
-    private const int MaxPageSize = 100;
+    private const int MaxPageSize = 20;
 
     private readonly IRegionRepository _regions;
     private readonly ITransactionRepository _transactions;

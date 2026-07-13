@@ -17,3 +17,7 @@ frontend/dist/
 # Secrets
 **/appsettings.Local.json
 .env
+
+## Visual Studio Hidden Cache and Settings Folders
+.vs/
+.idea/
