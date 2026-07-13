@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using TransactionApproval.Application.Abstractions;
 using TransactionApproval.Application.Common.Exceptions;
 using TransactionApproval.Application.DTOs.Auth;
@@ -8,13 +9,13 @@ namespace TransactionApproval.Application.Services;
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _users;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHasher<User> _passwordHasher;
     private readonly ITokenService _tokenService;
     private readonly IClock _clock;
 
     public AuthService(
         IUserRepository users,
-        IPasswordHasher passwordHasher,
+        IPasswordHasher<User> passwordHasher,
         ITokenService tokenService,
         IClock clock)
     {
@@ -37,9 +38,11 @@ public class AuthService : IAuthService
         {
             Id = Guid.NewGuid(),
             Username = username,
-            PasswordHash = _passwordHasher.Hash(request.Password),
-            CreatedAtUtc = _clock.UtcNow
+            CreatedAtUtc = _clock.UtcNow,
+            PasswordHash = string.Empty
         };
+
+        user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
 
         await _users.AddAsync(user, cancellationToken);
 
@@ -51,7 +54,13 @@ public class AuthService : IAuthService
         var username = request.Username.Trim();
         var user = await _users.GetByUsernameAsync(username, cancellationToken);
 
-        if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
+        if (user is null)
+        {
+            throw new AuthenticationException("Invalid username or password.");
+        }
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+        if (result is PasswordVerificationResult.Failed)
         {
             // Same message for both cases to avoid leaking which usernames exist.
             throw new AuthenticationException("Invalid username or password.");

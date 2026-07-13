@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TransactionApproval.Application.Abstractions;
+using TransactionApproval.Domain.Entities;
 using TransactionApproval.Infrastructure.Persistence;
 using TransactionApproval.Infrastructure.Persistence.Repositories;
 using TransactionApproval.Infrastructure.Security;
@@ -27,7 +29,7 @@ public static class DependencyInjection
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
         services.AddSingleton<IClock, SystemClock>();
-        services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
+        services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<ITokenService, JwtTokenService>();
 
         services.AddScoped<IRegionRepository, RegionRepository>();

@@ -66,7 +66,7 @@ public class TransactionService : ITransactionService
         int pageSize,
         CancellationToken cancellationToken)
     {
-        page = page < 1 ? 1 : page;
+        page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, MaxPageSize);
 
         var (items, totalCount) = await _transactions.GetApprovedAsync(page, pageSize, cancellationToken);
