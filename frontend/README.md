@@ -1,32 +1,74 @@
-# React + TypeScript + Vite
+# Frontend - Transaction Approval Simulator
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript frontend for simulating transaction approval decisions by selected region and local transaction time.
 
-Currently, two official plugins are available:
+## Tech
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript + Vite
+- TanStack React Query (server state + pagination)
+- Axios (HTTP client)
+- React Hook Form + Zod
+- i18next + react-i18next (English/Hebrew)
+- CSS Modules
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Signup/Login UI integrated with backend JWT endpoints
+- Token persistence in localStorage
+- Auto logout on API 401 responses
+- Region catalog fetch and search
+- Transaction simulation form (region + date + time)
+- Result card for Approved/Rejected decisions
+- Approved transactions carousel with paged fetching (infinite query)
+- EN/HE language toggle with persistent selection
+- Automatic RTL/LTR switching on language change
 
-## Expanding the Oxlint configuration
+## Project Structure
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```text
+src/
+  app/
+  features/
+    auth/
+    transactions/
+  i18n/
+  layout/
+  services/api/
+  styles/
+  types/
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Environment
+
+- VITE_API_BASE_URL: backend base URL
+- Default in code: http://localhost:5000
+- Recommended for this repository local backend profile: http://localhost:8080
+
+Example .env file:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+## Scripts
+
+```bash
+npm install
+npm run dev
+npm run lint
+npm run build
+npm run preview
+```
+
+## Local Run
+
+1. Start backend first (see root README).
+2. Start frontend with npm run dev.
+3. Open http://localhost:5173.
+
+## Docker
+
+When using root docker-compose.yml:
+
+- frontend is exposed at http://localhost:8081
+- VITE_API_BASE_URL is injected at build time as http://localhost:8080

@@ -1,23 +1,46 @@
+## Quick Start (One Command)
+
+Run everything with Docker and open the UI automatically:
+
+```powershell
+docker compose up -d --build; Start-Process "http://localhost:8081"
+```
+
+## Demo
+
+https://www.loom.com/share/b0344775f0794b61a4f2051781f4689f
+
 # Transaction Approval Simulator
 
-Production-quality take-home assignment implementation with:
-- Frontend: React + TypeScript + Vite + CSS Modules
-- Backend: ASP.NET Core 8 Web API (C#)
-- Database: SQL Server (MSSQL)
-- ORM: EF Core 8
-- Validation: FluentValidation
-- API docs: Swagger
-- Bonus features included: Docker Compose, English/Hebrew i18n with RTL/LTR, JWT auth (signup/login)
-- Event Publishing and Outbox.
+Full-stack simulator for transaction approval by region-local banking hours.
 
-## Project Overview
-The app simulates whether a transaction is approved based on banking hours in the selected region.
+## Stack
 
-Approval rule:
-- Approved only when region-local time is in 08:00 (inclusive) to 18:00 (exclusive)
-- Rejected otherwise
+- Frontend: React 19, TypeScript, Vite, React Query, React Hook Form, Zod, i18next (EN/HE + RTL)
+- Backend: ASP.NET Core 8 Web API, FluentValidation, JWT auth, Swagger
+- Data: SQL Server + EF Core 8
+- Reliability: Transactional outbox with leasing, retry backoff, and dead-lettering
+- DevOps: Docker Compose for end-to-end local environment
 
-The backend is the source of truth for time-zone conversion and approval decisions.
+## Recent Changes
+
+- Added transactional outbox processing with lease-based claiming, exponential backoff retries, and dead-letter handling.
+- Added authentication flow (signup/login) with JWT-protected transaction endpoints.
+- Added frontend auto-logout behavior when API returns 401.
+- Added paged approved-transactions API + frontend infinite loading (carousel load more).
+- Added EN/HE localization with persisted language selection and automatic RTL/LTR switching.
+- Added startup database migration execution for smoother local/docker startup.
+
+## Business Rule
+
+Transaction is approved only when region-local time is:
+
+- greater than or equal to 08:00
+- less than 18:00
+
+Otherwise the transaction is rejected.
+
+The backend is the source of truth for timezone conversion and approval decisions.
 
 ## Repository Structure
 
@@ -36,77 +59,85 @@ transaction-approval-simulator/
   docker-compose.yml
 ```
 
-## Architecture
+## Backend Architecture
 
-### Backend Layers
-- Api: controllers, middleware, DI composition, auth, Swagger, CORS
-- Application: use-case services, DTOs, validators, approval evaluator
+- Api: controllers, middleware, Swagger, JWT, CORS, DI composition
+- Application: services, DTOs, validators, approval evaluator, application events
 - Domain: entities and enums
-- Infrastructure: EF Core DbContext/configurations/repositories, JWT/password hashing, clock, migrations, transactional outbox processor (lease + retry + dead-letter), event serializer, log publisher
+- Infrastructure: EF Core persistence, repositories, password hashing, JWT issuing, system clock, outbox dispatcher/publisher
 
-### Frontend Structure
-- app: root composition and page orchestration
-- layout: top header and language toggle
-- features/auth: auth context and login/signup UI
-- features/transactions: simulator UI, result panel, approved list, hooks
-- services/api: typed API client functions
-- i18n: EN/HE translation resources and configuration
+## Frontend Architecture
+
+- app: top-level page composition
+- layout: header and language switch
+- features/auth: signup/login and auth context
+- features/transactions: region selection, local date/time input, simulation, approved carousel
+- services/api: typed API calls via axios instance
+- i18n: translation resources and initialization
 
 ## API Endpoints
 
-### Public
-- `GET /api/regions`
-- `POST /api/auth/signup`
-- `POST /api/auth/login`
+Public:
 
-### Protected (JWT)
-- `POST /api/transactions/simulate`
-- `GET /api/transactions/approved?page=1&pageSize=20`
+- GET /api/regions
+- POST /api/auth/signup
+- POST /api/auth/login
+
+Protected (JWT):
+
+- POST /api/transactions/simulate
+- GET /api/transactions/approved?page=1&pageSize=20
 
 ## Data Model
-- Region: `Code`, `Name`, `TimeZoneId`
-- Transaction: `Id`, `RegionCode`, `RegionName`, `TimeZoneId`, `SubmittedUtc`, `LocalTransactionTime`, `Status`, `CreatedAtUtc`
-- User: `Id`, `Username`, `PasswordHash`, `CreatedAtUtc`
-- OutboxMessage: `Id`, `Type`, `Payload`, `OccurredOnUtc`, `ProcessedOnUtc`, `DeadLetteredAtUtc`, `Attempts`, `AvailableAtUtc`, `LeasedUntilUtc`, `LastError`
+
+- Region: Code, Name, TimeZoneId
+- Transaction: Id, RegionCode, RegionName, TimeZoneId, SubmittedUtc, LocalTransactionTime, Status, CreatedAtUtc
+- User: Id, Username, PasswordHash, CreatedAtUtc
+- OutboxMessage: Id, Type, Payload, OccurredOnUtc, ProcessedOnUtc, DeadLetteredAtUtc, Attempts, AvailableAtUtc, LeasedUntilUtc, LastError
 
 ## Timezone Strategy
-- Supported regions are fixed and seeded in DB (`RegionCatalog`)
-- Each region maps to a stable IANA timezone ID
-- `submittedAt` is treated as an absolute instant; in the UI it is produced from the browser-local date/time picker and then sent as UTC.
-- Submitted transaction instant is stored in UTC
-- Backend converts UTC to region local time with `TimeZoneInfo`
-- DST is handled automatically by timezone data (no hardcoded offsets)
 
-USA ambiguity is resolved by explicit sub-regions:
-- `US-East` -> `America/New_York`
-- `US-West` -> `America/Los_Angeles`
+- Regions are fixed and seeded in the database.
+- Each region maps to a stable IANA timezone.
+- submittedAt is treated as an absolute UTC instant.
+- Backend converts UTC to region-local time using TimeZoneInfo.
+- DST is handled by timezone data (no hardcoded offsets).
 
-## Setup: Local Development
+US regions are explicitly split:
 
-## 1) Prerequisites
-- .NET SDK 8+ (SDK 10 works too)
+- US-East -> America/New_York
+- US-West -> America/Los_Angeles
+
+## Local Development
+
+### Prerequisites
+
+- .NET SDK 8+
 - Node.js 20+
-- SQL Server running locally on `localhost:1433`
+- SQL Server on localhost:1433
 
-## 2) Backend
+### Backend
+
 ```bash
 cd backend
-# optional: inspect settings
-# src/TransactionApproval.Api/appsettings.Development.json
-
-# run
- dotnet run --project src/TransactionApproval.Api
+dotnet run --project src/TransactionApproval.Api
 ```
 
-What happens on startup:
-- API starts
-- pending EF migrations are applied automatically
-- region catalog is seeded via migration
+Default development URL:
+
+- http://localhost:8080
 
 Swagger:
-- http://localhost:5000/swagger (or the URL printed by ASP.NET)
 
-## 3) Frontend
+- http://localhost:8080/swagger
+
+On startup:
+
+- pending EF migrations are applied automatically
+- seeded region catalog is available
+
+### Frontend
+
 ```bash
 cd frontend
 npm install
@@ -114,24 +145,52 @@ npm run dev
 ```
 
 Frontend URL:
+
 - http://localhost:5173
 
-Configure backend URL in frontend with:
-- `VITE_API_BASE_URL` (defaults to `http://localhost:5000`)
+Environment variable:
 
-## Setup: Docker Compose
+- VITE_API_BASE_URL (default: http://localhost:5000)
+
+Recommended local value for this backend setup:
+
+- http://localhost:8080
+
+## Docker Compose
+
 ```bash
 docker compose up --build
 ```
 
 Services:
+
 - Frontend: http://localhost:8081
 - Backend: http://localhost:8080
 - SQL Server: localhost:1433
 
-## Example API Requests
+Compose also injects backend JWT/CORS/connection settings.
 
-### Signup
+## Quality Commands
+
+Backend tests:
+
+```bash
+cd backend
+dotnet test
+```
+
+Frontend lint/build:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+## Example Requests
+
+Signup:
+
 ```http
 POST /api/auth/signup
 Content-Type: application/json
@@ -142,7 +201,8 @@ Content-Type: application/json
 }
 ```
 
-### Login
+Login:
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -153,7 +213,8 @@ Content-Type: application/json
 }
 ```
 
-### Simulate (protected)
+Simulate (JWT required):
+
 ```http
 POST /api/transactions/simulate
 Authorization: Bearer <token>
@@ -164,74 +225,37 @@ Content-Type: application/json
   "submittedAt": "2026-07-12T09:15:00.000Z"
 }
 ```
-`submittedAt` must be a UTC instant (ISO-8601). The frontend date/time picker converts the user's local selected time into this UTC value.
 
-### Approved (protected)
+Approved list (JWT required):
+
 ```http
 GET /api/transactions/approved?page=1&pageSize=20
 Authorization: Bearer <token>
 ```
 
-## Figma Alignment Notes
-The UI is implemented to mirror the provided interview design direction:
-- top brand header
-- ENG/Hebrew toggle
-- centered simulator title and badge
-- searchable region selector
-- prominent purple time card with hour/minute controls
-- result panel and visual card
-- bottom horizontal approved-transactions card list with arrows
+## Outbox Flow
 
-## Event Publishing and Outbox
-The backend uses a transactional outbox to guarantee durable event publication for transaction decisions.
+1. Transaction + outbox row are saved in one DB transaction.
+2. Background dispatcher claims pending rows with a lease window.
+3. Event payload is deserialized by type.
+4. Publisher emits event (default implementation: structured logs).
+5. Failures are retried with exponential backoff.
+6. Messages that exceed max retries are dead-lettered.
 
-Decision events:
-- `TransactionApproved`
-- `TransactionRejected`
-
-Each outbox payload carries at minimum:
-- event type
-- alert id (mapped to `Transaction.Id`)
-- transaction outcome (encoded by event type)
-- timestamp
-
-Processing flow:
-1. `TransactionService` saves the transaction and outbox row in one DB transaction.
-2. `OutboxDispatcherService` claims pending rows using a lease window.
-3. `OutboxEventSerializer` deserializes payload by event type.
-4. `LogEventPublisher` publishes (structured logs by default publisher).
-5. On failure, retry is scheduled with exponential backoff.
-6. After max attempts, message is marked dead-letter.
-
-Default retry controls (`appsettings.json` -> `Outbox`):
-- `PollingIntervalSeconds`
-- `BatchSize`
-- `MaxRetryCount`
-- `LeaseDuration`
-- `BaseBackoff`
-- `MaxBackoff`
-
-## Architecture Decisions
-- Thin controllers, business logic in application services
-- UTC persistence for auditability and consistency
-- Explicit region catalog instead of free-text countries
-- Transactional outbox for reliable asynchronous event publication
-- Separate approved-transactions query endpoint for read clarity and easy paging
-- JWT auth kept minimal and pragmatic for interview scope
+Outbox settings are configured under Outbox in appsettings.
 
 ## Tradeoffs
-- Frontend uses native date/time controls and custom styling instead of a heavy date-time library
-- No refresh tokens (short-lived access token only) to keep auth concise
-- Approved list paging implemented server-side but frontend currently shows first page only
-- Region catalog is static (best for deterministic business rules) rather than dynamic geopolitical coverage
 
-## What I Would Improve With More Time
-- Add integration tests for API + database (Testcontainers)
-- Add refresh token flow and role-based claims
-- Add broker-backed publisher implementation (Kafka/Service Bus) behind `IEventPublisher`
-- Add audit trail metadata (request id, actor id)
-- Add accessibility pass (keyboard flow, ARIA audit, contrast review)
-- Add virtualization and infinite loading for large approved lists
-- Add CI pipeline (build, test, lint, Docker build)
+- Uses short-lived access tokens only (no refresh tokens).
+- Region catalog is static and intentionally bounded.
+- Default event publisher logs events; broker integration can be added behind IEventPublisher.
 
+## Possible Next Improvements
+
+- Add integration tests (API + DB via Testcontainers).
+- Add refresh tokens and richer claims/authorization.
+- Add broker-backed event publisher (Kafka/Service Bus/RabbitMQ).
+- Add CI pipeline for build/test/lint/docker.
+- Add cahced region catalog to reduce DB roundtrips.
+- Add frontend unit tests and Cypress E2E tests.
 
