@@ -19,78 +19,121 @@ public class OutboxRepository : IOutboxRepository
         DateTime leasedUntilUtc,
         CancellationToken cancellationToken)
     {
-        var messages = await _db.OutboxMessages
-            .Where(m =>
-                m.ProcessedOnUtc == null &&
-                m.DeadLetteredAtUtc == null &&
-                m.AvailableAtUtc <= nowUtc &&
-                (m.LeasedUntilUtc == null || m.LeasedUntilUtc <= nowUtc))
-            .OrderBy(m => m.OccurredOnUtc)
-            .Take(batchSize)
-            .ToListAsync(cancellationToken);
+        var claimed = new List<OutboxMessage>(batchSize);
 
-        if (messages.Count == 0)
+        while (claimed.Count < batchSize)
         {
-            return messages;
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var remaining = batchSize - claimed.Count;
+
+            var candidates = await _db.OutboxMessages
+                .Where(m =>
+                    m.ProcessedOnUtc == null &&
+                    m.DeadLetteredAtUtc == null &&
+                    m.AvailableAtUtc <= nowUtc &&
+                    (m.LeasedUntilUtc == null || m.LeasedUntilUtc <= nowUtc))
+                .OrderBy(m => m.OccurredOnUtc)
+                .Take(remaining)
+                .ToListAsync(cancellationToken);
+
+            if (candidates.Count == 0)
+            {
+                break;
+            }
+
+            foreach (var message in candidates)
+            {
+                message.LeasedUntilUtc = leasedUntilUtc;
+            }
+
+            try
+            {
+                await _db.SaveChangesAsync(cancellationToken);
+                claimed.AddRange(candidates);
+                break;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Another instance claimed one or more candidates first.
+                foreach (var entry in ex.Entries)
+                {
+                    entry.State = EntityState.Detached;
+                }
+
+                foreach (var candidate in candidates)
+                {
+                    if (_db.Entry(candidate).State != EntityState.Detached)
+                    {
+                        _db.Entry(candidate).State = EntityState.Detached;
+                    }
+                }
+            }
         }
 
-        foreach (var message in messages)
-        {
-            message.LeasedUntilUtc = leasedUntilUtc;
-        }
-
-        await _db.SaveChangesAsync(cancellationToken);
-        return messages;
+        return claimed;
     }
 
-    public async Task MarkProcessedAsync(Guid id, DateTime processedOnUtc, CancellationToken cancellationToken)
+    public async Task MarkProcessedAsync(
+        Guid id,
+        byte[] expectedRowVersion,
+        DateTime processedOnUtc,
+        CancellationToken cancellationToken)
     {
-        var message = await _db.OutboxMessages.FindAsync(new object[] { id }, cancellationToken);
-        if (message is null)
-        {
-            return;
-        }
-
-        message.ProcessedOnUtc = processedOnUtc;
-        message.LeasedUntilUtc = null;
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.OutboxMessages
+            .Where(m =>
+                m.Id == id &&
+                m.RowVersion == expectedRowVersion &&
+                m.ProcessedOnUtc == null &&
+                m.DeadLetteredAtUtc == null)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(m => m.ProcessedOnUtc, _ => processedOnUtc)
+                    .SetProperty(m => m.LeasedUntilUtc, _ => null),
+                cancellationToken);
     }
 
     public async Task MarkFailedAsync(
         Guid id,
+        byte[] expectedRowVersion,
         string error,
         DateTime nextAttemptAtUtc,
         CancellationToken cancellationToken)
     {
-        var message = await _db.OutboxMessages.FindAsync(new object[] { id }, cancellationToken);
-        if (message is null)
-        {
-            return;
-        }
-
-        message.Attempts += 1;
-        message.LastError = error;
-        message.AvailableAtUtc = nextAttemptAtUtc;
-        message.LeasedUntilUtc = null;
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.OutboxMessages
+            .Where(m =>
+                m.Id == id &&
+                m.RowVersion == expectedRowVersion &&
+                m.ProcessedOnUtc == null &&
+                m.DeadLetteredAtUtc == null)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(m => m.Attempts, m => m.Attempts + 1)
+                    .SetProperty(m => m.LastError, _ => error)
+                    .SetProperty(m => m.AvailableAtUtc, _ => nextAttemptAtUtc)
+                    .SetProperty(m => m.LeasedUntilUtc, _ => null),
+                cancellationToken);
     }
 
     public async Task MarkDeadLetteredAsync(
         Guid id,
+        byte[] expectedRowVersion,
         DateTime deadLetteredAtUtc,
         string reason,
         CancellationToken cancellationToken)
     {
-        var message = await _db.OutboxMessages.FindAsync(new object[] { id }, cancellationToken);
-        if (message is null)
-        {
-            return;
-        }
-
-        message.Attempts += 1;
-        message.DeadLetteredAtUtc = deadLetteredAtUtc;
-        message.LastError = reason;
-        message.LeasedUntilUtc = null;
-        await _db.SaveChangesAsync(cancellationToken);
+        await _db.OutboxMessages
+            .Where(m =>
+                m.Id == id &&
+                m.RowVersion == expectedRowVersion &&
+                m.ProcessedOnUtc == null &&
+                m.DeadLetteredAtUtc == null)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(m => m.Attempts, m => m.Attempts + 1)
+                    .SetProperty(m => m.DeadLetteredAtUtc, _ => deadLetteredAtUtc)
+                    .SetProperty(m => m.LastError, _ => reason)
+                    .SetProperty(m => m.LeasedUntilUtc, _ => null),
+                cancellationToken);
     }
 }

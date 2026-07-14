@@ -123,7 +123,7 @@ public class TransactionServiceTests
         var approvedEvent = JsonSerializer.Deserialize<TransactionApprovedEvent>(outboxMessage.Payload);
         Assert.NotNull(approvedEvent);
         Assert.Equal(EventTypes.TransactionApproved, approvedEvent!.EventType);
-        Assert.Equal(response.Id, approvedEvent.AlertId);
+        Assert.Equal(response.Id, approvedEvent.TransactionId);
         Assert.Equal("IL", approvedEvent.RegionCode);
         Assert.Equal("Israel", approvedEvent.RegionName);
         Assert.NotEqual(default, approvedEvent.TimestampUtc);
@@ -146,7 +146,7 @@ public class TransactionServiceTests
         var rejectedEvent = JsonSerializer.Deserialize<TransactionRejectedEvent>(outboxMessage.Payload);
         Assert.NotNull(rejectedEvent);
         Assert.Equal(EventTypes.TransactionRejected, rejectedEvent!.EventType);
-        Assert.Equal(response.Id, rejectedEvent.AlertId);
+        Assert.Equal(response.Id, rejectedEvent.TransactionId);
         Assert.Equal("IL", rejectedEvent.RegionCode);
         Assert.Equal("Israel", rejectedEvent.RegionName);
         Assert.NotEqual(default, rejectedEvent.TimestampUtc);

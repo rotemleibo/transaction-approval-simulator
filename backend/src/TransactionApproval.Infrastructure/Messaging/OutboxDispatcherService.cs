@@ -86,7 +86,11 @@ public class OutboxDispatcherService : BackgroundService
         {
             var @event = serializer.Deserialize(message.Type, message.Payload);
             await publisher.PublishAsync(@event, cancellationToken);
-            await outbox.MarkProcessedAsync(message.Id, _timeProvider.GetUtcNow().UtcDateTime, cancellationToken);
+            await outbox.MarkProcessedAsync(
+                message.Id,
+                message.RowVersion,
+                _timeProvider.GetUtcNow().UtcDateTime,
+                cancellationToken);
 
             _logger.LogInformation(
                 "OutboxMessagePublished MessageId={MessageId} Type={MessageType}",
@@ -108,6 +112,7 @@ public class OutboxDispatcherService : BackgroundService
 
                 await outbox.MarkDeadLetteredAsync(
                     message.Id,
+                    message.RowVersion,
                     _timeProvider.GetUtcNow().UtcDateTime,
                     ex.Message,
                     cancellationToken);
@@ -125,7 +130,12 @@ public class OutboxDispatcherService : BackgroundService
                 attemptNumber,
                 nextAttemptAtUtc);
 
-            await outbox.MarkFailedAsync(message.Id, ex.Message, nextAttemptAtUtc, cancellationToken);
+            await outbox.MarkFailedAsync(
+                message.Id,
+                message.RowVersion,
+                ex.Message,
+                nextAttemptAtUtc,
+                cancellationToken);
         }
     }
 

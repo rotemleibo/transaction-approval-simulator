@@ -26,7 +26,7 @@ public class LogEventPublisher : IEventPublisher
         cancellationToken.ThrowIfCancellationRequested();
 
         var (eventType, payload) = _serializer.Serialize(@event);
-        _logger.LogInformation("Published alert event {EventType}: {Payload}", eventType, payload);
+        _logger.LogInformation("Published transaction event {EventType}: {Payload}", eventType, payload);
 
         return Task.CompletedTask;
     }

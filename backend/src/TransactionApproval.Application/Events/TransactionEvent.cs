@@ -2,11 +2,11 @@ namespace TransactionApproval.Application.Events;
 
 /// <summary>
 /// Common fields shared by all transaction decision events: event type,
-/// alert id, outcome, timestamp, plus light region context for
+/// transaction id, timestamp, plus light region context for
 /// traceability.
 /// </summary>
 public abstract record TransactionEvent(
-    Guid AlertId,
+    Guid TransactionId,
     DateTime TimestampUtc,
     string RegionCode,
     string RegionName)

@@ -129,7 +129,11 @@ public class OutboxDispatcherServiceTests
             CancellationToken cancellationToken) =>
             Task.FromResult(_messages);
 
-        public Task MarkProcessedAsync(Guid id, DateTime processedOnUtc, CancellationToken cancellationToken)
+        public Task MarkProcessedAsync(
+            Guid id,
+            byte[] expectedRowVersion,
+            DateTime processedOnUtc,
+            CancellationToken cancellationToken)
         {
             MarkProcessedCount += 1;
             Completion.TrySetResult();
@@ -138,6 +142,7 @@ public class OutboxDispatcherServiceTests
 
         public Task MarkFailedAsync(
             Guid id,
+            byte[] expectedRowVersion,
             string error,
             DateTime nextAttemptAtUtc,
             CancellationToken cancellationToken)
@@ -150,6 +155,7 @@ public class OutboxDispatcherServiceTests
 
         public Task MarkDeadLetteredAsync(
             Guid id,
+            byte[] expectedRowVersion,
             DateTime deadLetteredAtUtc,
             string reason,
             CancellationToken cancellationToken)

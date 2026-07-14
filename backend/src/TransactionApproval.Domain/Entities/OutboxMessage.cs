@@ -45,4 +45,10 @@ public class OutboxMessage
 
     /// <summary>Last error message recorded from a failed publish attempt.</summary>
     public string? LastError { get; set; }
+
+    /// <summary>
+    /// Optimistic concurrency token used to prevent multiple workers claiming
+    /// the same message.
+    /// </summary>
+    public byte[] RowVersion { get; set; } = Array.Empty<byte>();
 }

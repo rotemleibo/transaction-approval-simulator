@@ -19,13 +19,23 @@ public interface IOutboxRepository
         DateTime leasedUntilUtc,
         CancellationToken cancellationToken);
 
-    Task MarkProcessedAsync(Guid id, DateTime processedOnUtc, CancellationToken cancellationToken);
+    Task MarkProcessedAsync(
+        Guid id,
+        byte[] expectedRowVersion,
+        DateTime processedOnUtc,
+        CancellationToken cancellationToken);
 
     Task MarkFailedAsync(
         Guid id,
+        byte[] expectedRowVersion,
         string error,
         DateTime nextAttemptAtUtc,
         CancellationToken cancellationToken);
 
-    Task MarkDeadLetteredAsync(Guid id, DateTime deadLetteredAtUtc, string reason, CancellationToken cancellationToken);
+    Task MarkDeadLetteredAsync(
+        Guid id,
+        byte[] expectedRowVersion,
+        DateTime deadLetteredAtUtc,
+        string reason,
+        CancellationToken cancellationToken);
 }

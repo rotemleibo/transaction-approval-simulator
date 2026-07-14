@@ -16,6 +16,7 @@ public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage
         builder.Property(m => m.Payload).IsRequired();
         builder.Property(m => m.LastError).HasMaxLength(2000);
         builder.Property(m => m.AvailableAtUtc).IsRequired();
+        builder.Property(m => m.RowVersion).IsRowVersion();
 
         // Optimizes claiming pending messages for processing.
         builder.HasIndex(m => new { m.ProcessedOnUtc, m.DeadLetteredAtUtc, m.AvailableAtUtc, m.LeasedUntilUtc });
