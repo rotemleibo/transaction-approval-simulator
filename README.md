@@ -1,3 +1,7 @@
+# Transaction Approval Simulator
+
+Home assignment submission for a software engineering interview.
+
 ## Quick Start (One Command)
 
 Run everything with Docker and open the UI automatically:
@@ -10,8 +14,6 @@ docker compose up -d --build; Start-Process "http://localhost:8081"
 
 https://www.loom.com/share/b0344775f0794b61a4f2051781f4689f
 
-# Transaction Approval Simulator
-
 Full-stack simulator for transaction approval by region-local banking hours.
 
 ## Stack
@@ -21,15 +23,6 @@ Full-stack simulator for transaction approval by region-local banking hours.
 - Data: SQL Server + EF Core 8
 - Reliability: Transactional outbox with leasing, retry backoff, and dead-lettering
 - DevOps: Docker Compose for end-to-end local environment
-
-## Recent Changes
-
-- Added transactional outbox processing with lease-based claiming, exponential backoff retries, and dead-letter handling.
-- Added authentication flow (signup/login) with JWT-protected transaction endpoints.
-- Added frontend auto-logout behavior when API returns 401.
-- Added paged approved-transactions API + frontend infinite loading (carousel load more).
-- Added EN/HE localization with persisted language selection and automatic RTL/LTR switching.
-- Added startup database migration execution for smoother local/docker startup.
 
 ## Business Rule
 
